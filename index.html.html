@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ciber Ugarte | Admin Omni-Alert v3.7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { cian: '#00f0ff', azul: '#0066ff', neon: '#39ff14', alerta: '#ff003c', fondo: '#05070a' },
+                    fontFamily: { tech: ['Orbitron', 'sans-serif'], mono: ['Space Mono', 'monospace'] }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .bg-cyber-ciber {
+                background: linear-gradient(rgba(5, 7, 10, 0.85), rgba(5, 7, 10, 0.85)),
+                            url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=2070');
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }
+            .cyber-border {
+                position: relative;
+                border: 1px solid rgba(0, 240, 255, 0.2);
+                background: rgba(10, 15, 25, 0.9);
+                clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+                backdrop-filter: blur(10px);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .cyber-border:hover { border-color: rgba(0, 240, 255, 0.5); transform: translateY(-2px); }
+            .admin-only { display: none !important; }
+            .is-admin .admin-only { display: block !important; }
+            .admin-controls { display: none !important; }
+            .is-admin .admin-controls { display: inline-flex !important; }
+            .alert-active { animation: alert-pulse 0.4s infinite alternate; z-index: 50; }
+            @keyframes alert-pulse { 
+                from { border-color: #ff003c; box-shadow: 0 0 10px rgba(255, 0, 60, 0.2); } 
+                to { border-color: #ffffff; box-shadow: 0 0 30px rgba(255, 0, 60, 0.5); } 
+            }
+        }
+    </style>
+</head>
+<body class="bg-fondo text-gray-400 font-mono min-h-screen bg-cyber-ciber selection:bg-cian selection:text-black">
+
+    <nav class="sticky top-0 z-50 bg-black/90 border-b border-white/10 backdrop-blur-md px-8 py-3 flex justify-between items-center">
+        <div class="text-[10px] text-cian font-tech tracking-widest uppercase">Autenticación_Sistema v3.7.1</div>
+        <div class="flex gap-2">
+            <input type="password" id="adminPass" placeholder="LLAVE_CMD" class="bg-black border border-white/20 rounded px-3 py-1 text-[10px] outline-none focus:border-cian w-32 transition-all">
+            <button onclick="unlockAdmin()" id="btnUnlock" class="bg-white/10 text-white border border-white/20 px-4 py-1 rounded text-[10px] font-black hover:bg-cian hover:text-black transition-all uppercase">Verificar</button>
+            <button onclick="clearSystemData()" id="btnClear" class="hidden bg-alerta/20 text-alerta border border-alerta/50 px-4 py-1 rounded text-[10px] font-black hover:bg-alerta hover:text-white transition-all uppercase">Reiniciar</button>
+            <button onclick="location.reload()" id="btnExit" class="hidden bg-white text-black px-4 py-1 rounded text-[10px] font-black uppercase">Salir Admin</button>
+        </div>
+    </nav>
+
+    <header class="pt-16 pb-8 text-center relative px-6 overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-cian/5 blur-[100px] pointer-events-none"></div>
+        <h1 class="text-5xl md:text-8xl font-tech font-black text-white tracking-tighter italic leading-none uppercase">
+            CIBER<span class="text-cian">UGARTE</span>
+        </h1>
+        
+        <div class="mt-6 flex flex-wrap justify-center gap-6 text-[10px] md:text-xs font-bold tracking-widest uppercase">
+            <a href="https://wa.me/525567583425" target="_blank" class="flex items-center gap-2 text-white bg-black/40 px-4 py-2 border border-white/10 rounded-full hover:bg-cian/20 hover:border-cian transition-all backdrop-blur-sm">
+                <i class="fa fa-phone text-cian"></i> +52 55 6758 3425
+            </a>
+            <a href="mailto:contacto@ciberugarte.com" class="flex items-center gap-2 text-white bg-black/40 px-4 py-2 border border-white/10 rounded-full hover:bg-azul/20 hover:border-azul transition-all backdrop-blur-sm">
+                <i class="fa fa-envelope text-azul"></i> contacto@ciberugarte.com
+            </a>
+        </div>
+
+        <div class="mt-8 flex justify-center items-center gap-4 text-[9px] uppercase tracking-[0.6em] text-azul font-bold">
+            <span>Sistemas</span> <span class="text-white">//</span> <span>Logística</span> <span class="text-white">//</span> <span>Dev</span>
+        </div>
+    </header>
+
+    <section id="adminPanel" class="admin-only max-w-6xl mx-auto px-8 mb-12">
+        <div class="cyber-border p-6 border-neon/50 bg-neon/5">
+            <h2 class="text-neon font-tech text-xs uppercase mb-4 tracking-widest"><i class="fa fa-terminal mr-2"></i>Consola de Inyección</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <input type="text" id="newName" placeholder="Nombre del servicio" class="bg-black border border-gray-800 p-2 text-xs text-white outline-none focus:border-neon">
+                <input type="text" id="newPrice" placeholder="Precio (ej: $10.00)" class="bg-black border border-gray-800 p-2 text-xs text-white outline-none focus:border-neon">
+                <select id="newSector" class="bg-black border border-gray-800 p-2 text-xs text-white outline-none focus:border-neon">
+                    <option value="list-tramites">Sector: Trámites</option>
+                    <option value="list-cursos">Sector: Cursos</option>
+                    <option value="list-dev">Sector: Ingeniería</option>
+                </select>
+                <button onclick="injectData()" class="bg-neon text-black font-black py-2 text-[10px] uppercase hover:brightness-125 transition-all">Inyectar Datos</button>
+            </div>
+        </div>
+    </section>
+
+    <main class="max-w-[1400px] mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-8 pb-32">
+        <section id="sec-tramites" class="cyber-border p-8"><h2 class="text-2xl font-tech text-white uppercase mb-8 italic">📂 Trámites</h2><div id="list-tramites" class="space-y-8"></div></section>
+        <section id="sec-cursos" class="cyber-border p-8 border-azul/30"><h2 class="text-2xl font-tech text-white uppercase mb-8 italic">📚 Cursos</h2><div id="list-cursos" class="space-y-8"></div></section>
+        <section id="sec-dev" class="cyber-border p-8 border-neon/30"><h2 class="text-2xl font-tech text-white uppercase mb-8 italic">💻 Ingeniería</h2><div id="list-dev" class="space-y-8"></div></section>
+    </main>
+
+    <script>
+        const MASTER_KEY = "Ugarte2026";
+        const WHATSAPP_NUMBER = "525567583425";
+
+        let services = JSON.parse(localStorage.getItem('ugarte_v3_data')) || [
+            { id: 1, name: 'CURP e IMSS', price: '$3.50', sector: 'list-tramites' },
+            { id: 2, name: 'Excel y Office', price: '$50.00', sector: 'list-cursos' },
+            { id: 3, name: 'Software & Apps', price: '$250.00', sector: 'list-dev' }
+        ];
+
+        function unlockAdmin() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === MASTER_KEY) {
+                document.body.classList.add('is-admin');
+                document.getElementById('btnUnlock').classList.add('hidden');
+                document.getElementById('btnExit').classList.remove('hidden');
+                document.getElementById('btnClear').classList.remove('hidden');
+                document.getElementById('adminPass').classList.add('hidden');
+                renderItems();
+                alert("ACCESS GRANTED. MODO EDICIÓN ACTIVO.");
+            } else { alert("ERROR: LLAVE INCORRECTA"); }
+        }
+
+        function injectData() {
+            const name = document.getElementById('newName').value;
+            const price = document.getElementById('newPrice').value;
+            const sector = document.getElementById('newSector').value;
+            if(name && price) {
+                services.push({ id: Date.now(), name, price, sector });
+                saveAndRender();
+                document.getElementById('newName').value = ""; document.getElementById('newPrice').value = "";
+            }
+        }
+
+        function editPrice(id) {
+            const newPrice = prompt("Ingrese el nuevo precio del servicio:");
+            if(newPrice !== null) {
+                const item = services.find(i => i.id === id);
+                if(item) item.price = newPrice;
+                saveAndRender();
+            }
+        }
+
+        function removeItem(id) {
+            if(confirm("¿Seguro que desea eliminar este servicio?")) {
+                services = services.filter(item => item.id !== id);
+                saveAndRender();
+            }
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('ugarte_v3_data', JSON.stringify(services));
+            renderItems();
+        }
+
+        function requestService(name, price, sectorId) {
+            // Mensaje compacto sin espacios adicionales según lo solicitado
+            const message = `*SOLICITUD CIBER UGARTE*\n*Servicio:* ${name}\n*Costo:* ${price}\nHola Ale Ugarte, me interesa este servicio.`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
+
+            let parentSection = 'sec-tramites';
+            if(sectorId === 'list-cursos') parentSection = 'sec-cursos';
+            if(sectorId === 'list-dev') parentSection = 'sec-dev';
+            
+            const section = document.getElementById(parentSection);
+            section.classList.add('alert-active');
+            setTimeout(() => { section.classList.remove('alert-active'); }, 4000);
+
+            const speech = new SpeechSynthesisUtterance();
+            speech.text = `Atención Operador Ugarte. Nueva solicitud de servicio para ${name}.`;
+            speech.lang = 'es-MX';
+            speech.rate = 0.9;
+            window.speechSynthesis.speak(speech);
+        }
+
+        function renderItems() {
+            ['list-tramites', 'list-cursos', 'list-dev'].forEach(l => document.getElementById(l).innerHTML = '');
+            services.forEach(item => {
+                const container = document.getElementById(item.sector);
+                if(!container) return;
+                const div = document.createElement('div');
+                div.className = "border-l-2 border-white/10 pl-4 py-2 mt-8 relative";
+                
+                div.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <h3 class="text-white font-tech text-sm uppercase">${item.name}</h3>
+                        <div class="admin-controls gap-3">
+                            <button onclick="editPrice(${item.id})" class="text-neon text-[10px] hover:brightness-125 transition-all">
+                                <i class="fa fa-pencil"></i> EDIT
+                            </button>
+                            <button onclick="removeItem(${item.id})" class="text-alerta text-[10px] hover:brightness-125 transition-all">
+                                <i class="fa fa-trash"></i> DEL
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-white font-black text-xl font-tech">${item.price}</span>
+                        <button onclick="requestService('${item.name}', '${item.price}', '${item.sector}')" 
+                            class="bg-white/5 border border-white/20 text-[9px] text-white px-4 py-1.5 uppercase font-bold hover:bg-cian hover:text-black transition-all">
+                            Solicitar
+                        </button>
+                    </div>`;
+                container.appendChild(div);
+            });
+        }
+
+        function clearSystemData() {
+            if(confirm("¿Desea borrar toda la base de datos personalizada?")) {
+                localStorage.removeItem('ugarte_v3_data');
+                location.reload();
+            }
+        }
+
+        renderItems();
+    </script>
+</body>
+</html>
